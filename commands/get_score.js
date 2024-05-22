@@ -23,8 +23,8 @@ module.exports = {
             }
 
             const nameData = await nameResponse.json();
-            const id = nameData.find(team => team.Name === teamName);
-
+            const id = nameData.find(team => (team.Name === teamName) || (team.City === teamName));
+            const cityName =   `${id.City} ${id.Name}`; 
             const currSeason = "2024";
             const getGameIDURL = `https://api.sportsdata.io/v3/mlb/scores/json/TeamGameStatsBySeason/${currSeason}/${id.TeamID}/1?key=${apiKey}`;
             const getGameResponse = await fetch(getGameIDURL);
@@ -37,9 +37,8 @@ module.exports = {
             const game = data.find(gam => gam.TeamID === id.TeamID );
 
             const opponentID = game.OpponentID;
-            console.log("OID" + opponentID);
             const opponent = nameData.find(opp => opp.TeamID === opponentID) ;
-            const opponentName = opponent.Name;
+            const oppCityName = `${opponent.City} ${opponent.Name}`;
 
            const thirdURL = `https://api.sportsdata.io/v3/mlb/stats/json/BoxScore/${game.GameID}?key=${apiKey}`;
 
@@ -58,29 +57,29 @@ module.exports = {
             
             const runsHome = boxScore.Game.HomeTeamRuns;
             const runsAway = boxScore.Game.AwayTeamRuns;
-            const result = `The most recent game for ${teamName} was on ${boxScore.Game.DateTime.substring(0, 10)} against the ${opponentName}.`;
-            const homeWin = `The ${teamName} beat the ${opponentName} by a score of ${runsHome} - ${runsAway}.`;
-            const awayWin = `The ${teamName} beat the ${opponentName} by a score of ${runsAway} - ${runsHome}.`;
-            const homeLoss = `The ${teamName} lost to the ${opponentName} by a score of ${runsAway} - ${runsHome}.`;
-            const awayLoss = `The ${teamName} lost to the ${opponentName} by a score of ${runsHome} - ${runsAway}.`;
+            const result = `The most recent game for ${cityName} was on ${boxScore.Game.DateTime.substring(0, 10)} against the ${oppCityName}.`;
 
             message.channel.send(result);
-            if(id.TeamId === boxScore.Game.HomeTeamID){
+            if(id.TeamID === boxScore.Game.HomeTeamID){
                 if(runsAway > runsHome){
-                    message.channel.send(homeWin);
-                }else{
+                    const homeLoss = `The ${cityName} lost to the ${oppCityName} by a score of ${runsAway} - ${runsHome}.`;
                     message.channel.send(homeLoss);
+                }else{
+                    const homeWin = `The ${cityName} beat the ${oppCityName} by a score of ${runsHome} - ${runsAway}.`;
+                    message.channel.send(homeWin);
                 }
             }else{
                 if(runsAway > runsHome){
+                    const awayWin = `The ${cityName} beat the ${oppCityName} by a score of ${runsAway} - ${runsHome}.`;
                     message.channel.send(awayWin);
                 }else{
+                    const awayLoss = `The ${cityName} lost to the ${oppCityName} by a score of ${runsHome} - ${runsAway}.`;
                     message.channel.send(awayLoss);
                 }
             }
         }catch (error) {
             console.error('Error fetching game data:', error);
-            message.channel.send('Error occurred fetching game data');
+            message.channel.send('No Game Data Found For: ' + teamName);
         }
     },
 };
