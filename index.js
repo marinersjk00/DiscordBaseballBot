@@ -27,7 +27,6 @@ client.once('ready', () => {
 });
 
 client.on('messageCreate', message => {
-    console.log(`Message Received: ${message.content}`);
 
     if(!message.content.startsWith('!') || message.author.bot) return;
 
