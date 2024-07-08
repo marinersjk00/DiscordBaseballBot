@@ -57,7 +57,7 @@ module.exports = {
             
             const runsHome = boxScore.Game.HomeTeamRuns;
             const runsAway = boxScore.Game.AwayTeamRuns;
-            const result = `The most recent game for ${cityName} was on ${boxScore.Game.DateTime.substring(0, 10)} against the ${oppCityName}.`;
+            const result = `${cityName} Last Result: ${boxScore.Game.DateTime.substring(0, 10)} vs ${oppCityName}.`;
 
             message.channel.send(result);
             if(id.TeamID === boxScore.Game.HomeTeamID){
